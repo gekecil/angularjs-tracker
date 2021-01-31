@@ -11,82 +11,71 @@
   <body ng-app="intervalBasic" class="ng-scope">
   <script>
   angular.module('intervalBasic', [])
-    .controller('DirectionController', ['$scope', '$interval',
-      function($scope, $interval) {
-        $scope.format = 'M/d/yy h:mm:ss a';
-        $scope.blood_1 = 100;
-        $scope.blood_2 = 120;
-
-        var stop;
-        $scope.fight = function() {
-          // Don't start a new fight if we are already fighting
-          if ( angular.isDefined(stop) ) return;
-
-          stop = $interval(function() {
-            if ($scope.blood_1 > 0 && $scope.blood_2 > 0) {
-              $scope.blood_1 = $scope.blood_1 - 3;
-              $scope.blood_2 = $scope.blood_2 - 4;
-            } else {
-              $scope.stopFight();
-            }
-          }, 100);
-        };
-
-        $scope.stopFight = function() {
-          if (angular.isDefined(stop)) {
-            $interval.cancel(stop);
-            stop = undefined;
-          }
-        };
-
-        $scope.resetFight = function() {
-          $scope.blood_1 = 100;
-          $scope.blood_2 = 120;
-        };
-
-        $scope.$on('$destroy', function() {
-          // Make sure that the interval is destroyed too
-          $scope.stopFight();
-        });
+    .controller('DirectionController', ['$scope',
+      function($scope) {
+	  
+		$scope.direction = {
+			latitude: -6.2108550000000005,
+			longitude: 106.81861805
+		};
+	  
       }])
     // Register the 'myCurrentTime' directive factory method.
     // We inject $interval and dateFilter service since the factory method is DI.
-    .directive('direction', ['$interval', 'dateFilter',
-      function($interval, dateFilter) {
+    .directive('direction', ['$interval',
+      function($interval) {
         // return the directive link function. (compile function not needed)
         return function(scope, element, attrs) {
-          var latitude = -6.2108550000000005;  // date format
-          var longitude = 106.81861805;  // date format
-          var stopTime; // so that we can cancel the time updates
+		
+			var stopTime, // so that we can cancel the time updates
+			stop;
+			
+			var latitude = scope.direction.latitude;
+			var longitude = scope.direction.longitude;
+			
+			updateDirection();
+			
+			scope.fight = function() {
+				stopTime = $interval(updateDirection, 5000);
+			};
+
+			scope.stopFight = function() {
+				$interval.cancel(stopTime);
+			};
+
+			scope.resetFight = function() {
+				latitude = scope.direction.latitude;
+				longitude = scope.direction.longitude;
+				
+				updateDirection();
+				$interval.cancel(stopTime);
+			};
 		  
 			function updateDirection() {
 				scope.$watch(attrs.direction, function(value) {
 					latitude += value;
-					
+						
 					element.children().eq(element.children().length - 1).remove();
+						
+					element.append('<iframe id="map" width="100%" height="500" frameborder="0" scrolling="no" src="https://maps.google.com/maps?q=' + latitude + ',' + longitude + '&hl=id&z=14&amp;output=embed"></iframe>');
 					
-					element.append('<iframe id="map" width="100%" height="500" frameborder="0" scrolling="no" src="https://maps.google.com/maps?q=' + latitude + ',' + longitude + '&hl=es&z=14&amp;output=embed"></iframe>');
+					element.children().eq(5).text('Latitude: ' + latitude);
+					element.children().eq(6).text('Longitude: ' + longitude);
 				})
 			}
-			
-			updateDirection();
-			
-          stopTime = $interval(updateDirection, 5000);
-
-          // listen on DOM destroy (removal) event, and cancel the next UI update
-          // to prevent updating time after the DOM element was removed.
-          element.on('$destroy', function() {
-            $interval.cancel(stopTime);
-          });
         }
       }]);
 </script>
 
-<div>
-  <div direction="0.0005" ng-controller="DirectionController" class="ng-scope">
+<div ng-controller="DirectionController" class="ng-scope">
+  <div direction="0.005">
 	<button type="button" data-ng-click="fight()">Start</button>
     <button type="button" data-ng-click="stopFight()">Stop</button>
     <button type="button" data-ng-click="resetFight()">Reset</button>
+	<br><br>
+	<span style="display: block"></span>
+	<span></span>
+	<br><br>
 	<br><br>
   </div>
 </div>
