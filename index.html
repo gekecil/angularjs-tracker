@@ -3,11 +3,6 @@
   <head>
     <script src="angularjs/1.8.2/angular.js"></script>
   </head>
-	
-	<!--script>
-		$scope.src = 'https://maps.google.com/maps?q=0,0&hl=es&z=14&amp;output=embed';
-	</script-->
-	
   <body ng-app="intervalBasic" class="ng-scope">
   <script>
   angular.module('intervalBasic', [])
@@ -30,8 +25,9 @@
 			var stopTime, // so that we can cancel the time updates
 			stop;
 			
-			var latitude = scope.direction.latitude;
-			var longitude = scope.direction.longitude;
+			var direction = scope.direction;
+			direction.time = (new Date()).setHours(0, 0, 0);
+			direction.keys = Object.keys(direction);
 			
 			updateDirection();
 			
@@ -44,8 +40,9 @@
 			};
 
 			scope.resetFight = function() {
-				latitude = scope.direction.latitude;
-				longitude = scope.direction.longitude;
+				direction = scope.direction;
+				direction.time = (new Date()).setHours(0, 0, 0);
+				direction.keys = Object.keys(direction);
 				
 				updateDirection();
 				$interval.cancel(stopTime);
@@ -53,32 +50,37 @@
 		  
 			function updateDirection() {
 				scope.$watch(attrs.direction, function(value) {
-					latitude += value;
-						
+					direction[direction.keys[Math.floor(Math.random() * 2)]] += value;
+					direction.time = (new Date(direction.time)).setSeconds((new Date(direction.time)).getSeconds() + 5);
+					
 					element.children().eq(element.children().length - 1).remove();
 						
-					element.append('<iframe id="map" width="100%" height="500" frameborder="0" scrolling="no" src="https://maps.google.com/maps?q=' + latitude + ',' + longitude + '&hl=id&z=14&amp;output=embed"></iframe>');
+					element.append('<iframe id="map" width="100%" height="500" frameborder="0" scrolling="no" src="https://maps.google.com/maps?q=' + direction.latitude + ',' + direction.longitude + '&hl=id&z=14&amp;output=embed"></iframe>');
 					
-					element.children().eq(5).text('Latitude: ' + latitude);
-					element.children().eq(6).text('Longitude: ' + longitude);
+					element.children().eq(5).text('Time: ' + ('0' + (new Date(direction.time)).getHours()).slice(-2) + ':' + ('0' + (new Date(direction.time)).getMinutes()).slice(-2) + ':' + ('0' + (new Date(direction.time)).getSeconds()).slice(-2));
+					element.children().eq(6).text('Latitude: ' + direction.latitude);
+					element.children().eq(7).text('Longitude: ' + direction.longitude);
+					element.children().eq(8).text('Kecepatan: 111 m/s');
 				})
 			}
         }
       }]);
-</script>
+  </script>
 
-<div ng-controller="DirectionController" class="ng-scope">
-  <div direction="0.001">
-	<button type="button" data-ng-click="fight()">Start</button>
-    <button type="button" data-ng-click="stopFight()">Stop</button>
+  <div ng-controller="DirectionController" class="ng-scope">
+    <div direction="0.001">
+	  <button type="button" data-ng-click="fight()">Start</button>
+      <button type="button" data-ng-click="stopFight()">Stop</button>
     <button type="button" data-ng-click="resetFight()">Reset</button>
 	<br><br>
+	<span style="display: block"></span>
+	<span style="display: block"></span>
 	<span style="display: block"></span>
 	<span></span>
 	<br><br>
 	<br><br>
+    </div>
   </div>
-</div>
 
 </body>
 </html>
