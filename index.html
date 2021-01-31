@@ -71,7 +71,7 @@
 			
 			updateDirection();
 			
-          stopTime = $interval(updateDirection, 2500);
+          stopTime = $interval(updateDirection, 5000);
 
           // listen on DOM destroy (removal) event, and cancel the next UI update
           // to prevent updating time after the DOM element was removed.
@@ -84,12 +84,10 @@
 
 <div>
   <div direction="0.0001" ng-controller="DirectionController" class="ng-scope">
-  
-    <button type="button" data-ng-click="fight()">Start</button>
+	<button type="button" data-ng-click="fight()">Start</button>
     <button type="button" data-ng-click="stopFight()">Stop</button>
     <button type="button" data-ng-click="resetFight()">Reset</button>
-	
-	
+	<br>
   </div>
 </div>
 
