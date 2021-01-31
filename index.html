@@ -18,8 +18,14 @@
 	  scrolling="no" 
 	  marginheight="0" 
 	  marginwidth="0" 
-	  src="https://maps.google.com/maps?q={{latitude}},{{longitude}}&hl=es&z=14&amp;output=embed"
+	  src="{{ src }}"
+	  refreshable="tab.refresh"
 	>
- </iframe>
+	</iframe>
+	
+	<script>
+		$scope.url = 'https://maps.google.com/maps?q=0,0&hl=es&z=14&amp;output=embed';
+	</script>
+	
   </body>
 </html>
